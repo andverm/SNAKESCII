@@ -407,7 +407,7 @@ int main()
 			{ 72, 15 },
 		};*/
 
-		Snake s;
+		Snake snake;
 
 		int gameSpeed = 500 + difficulty * 100;
 		const int speedUpPerFood = 25 + 25 * difficulty;
@@ -467,6 +467,7 @@ int main()
 					playing = false;
 					dead = false;
 					menu = true;
+					bestScore = 0;
 					break;
 				}
 
@@ -480,8 +481,8 @@ int main()
 			{
 				deltaTime = 0.0f;
 
-				int currentPositionX = s.Head().mX;
-				int currentPositionY = s.Head().mY;
+				int currentPositionX = snake.Head().mX;
+				int currentPositionY = snake.Head().mY;
 
 				int deltaPosition;
 
@@ -489,22 +490,22 @@ int main()
 				{
 				case 0: //UP
 					deltaPosition = currentPositionY == 3 ? SCREEN_HEIGHT - 2 : currentPositionY - 1;
-					s.Move(currentPositionX, deltaPosition);
+					snake.Move(currentPositionX, deltaPosition);
 					break;
 
 				case 1: // RIGHT
 					deltaPosition = currentPositionX == SCREEN_WIDTH - 2 ? 2 : currentPositionX + 2;
-					s.Move(deltaPosition, currentPositionY);
+					snake.Move(deltaPosition, currentPositionY);
 					break;
 
 				case 2: //DOWN
 					deltaPosition = currentPositionY == SCREEN_HEIGHT - 2 ? 3 : currentPositionY + 1;
-					s.Move(currentPositionX, deltaPosition);
+					snake.Move(currentPositionX, deltaPosition);
 					break;
 
 				case 3: //LEFT
 					deltaPosition = currentPositionX == 2 ? SCREEN_WIDTH - 2 : currentPositionX - 2;
-					s.Move(deltaPosition, currentPositionY);
+					snake.Move(deltaPosition, currentPositionY);
 					break;
 
 				default:
@@ -516,7 +517,7 @@ int main()
 				// Collision Detection
 
 				// With Food
-				if (s.Head().mX == foodX && s.Head().mY == foodY)
+				if (snake.Head().mX == foodX && snake.Head().mY == foodY)
 				{
 					score++;
 					gameSpeed += speedUpPerFood;
@@ -532,16 +533,16 @@ int main()
 
 					for (int i = 0; i < growthPerFood; i++)
 					{
-						s.Grow();
+						snake.Grow();
 					}
 				}
 
 				// With Body --> DIE
-				for (int i = 1; i < s.Size(); i++)
+				for (int i = 1; i < snake.Size(); i++)
 				{
-					auto body = s.BodyAt(i);
+					auto body = snake.BodyAt(i);
 
-					if (body.mX == s.Head().mX && body.mY == s.Head().mY)
+					if (body.mX == snake.Head().mX && body.mY == snake.Head().mY)
 					{
 						dead = true;
 
@@ -582,13 +583,13 @@ int main()
 				}
 
 				// Draw snake body
-				for (int i = 0; i < s.Size(); i++)
+				for (int i = 0; i < snake.Size(); i++)
 				{
-					screen[s.BodyAt(i).mY * SCREEN_WIDTH + s.BodyAt(i).mX] = dead ? L'+' : L'O';
+					screen[snake.BodyAt(i).mY * SCREEN_WIDTH + snake.BodyAt(i).mX] = dead ? L'+' : L'O';
 				}
 
 				// Draw snake head
-				screen[s.Head().mY * SCREEN_WIDTH + s.Head().mX] = dead ? L'X' : L'@';
+				screen[snake.Head().mY * SCREEN_WIDTH + snake.Head().mX] = dead ? L'X' : L'@';
 
 				// Draw Level
 				for (int i = 0; i < SCREEN_HEIGHT; i++)
@@ -604,10 +605,9 @@ int main()
 					screen[i + SCREEN_WIDTH * (SCREEN_HEIGHT - 1)] = L'=';
 				}
 
-				wsprintfW(&screen[SCREEN_WIDTH + 4], L"S N A K E");
-				wsprintfW(&screen[SCREEN_WIDTH * 2 - 12], L"SCORE: %d", score);
-
-				wsprintfW(&screen[SCREEN_WIDTH * 2 - 26], L"PLAYER: %s", &playerName);
+				wsprintf(&screen[SCREEN_WIDTH + 4], L"S N A K E");
+				wsprintf(&screen[SCREEN_WIDTH * 2 - 12], L"SCORE: %d", score);
+				wsprintf(&screen[SCREEN_WIDTH * 2 - 26], L"PLAYER: %s", playerName);
 
 				/*wsprintf(&screen[SCREEN_WIDTH * 2 - 24], L"position: X: %d, Y: %d",
 					snake.front().mX % SCREEN_WIDTH / 2,
